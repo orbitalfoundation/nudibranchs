@@ -1,0 +1,26 @@
+# Nudibranchs — production web server. Runs in a Caddy container on the exe.dev VM.
+# exe.dev terminates TLS at its proxy, so we serve plain HTTP on :80.
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv/site
+	encode gzip zstd
+
+	# Content-hashed bundles (app-<hash>.js) change filename whenever their content
+	# changes, so they can be cached forever — a new build gets a new name and is
+	# always fetched fresh. This is what prevents stale JS being served after a deploy.
+	@immutable path /app-*.js /app-*.js.map /asset-*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# index.html (and the SPA fallback) must ALWAYS be revalidated, so a deploy is
+	# picked up at once instead of a stale page lingering in the browser cache.
+	@html path / *.html
+	header @html Cache-Control "no-cache"
+
+	# Single page: unknown paths fall back to index.html.
+	try_files {path} {path}/ /index.html
+	file_server
+}

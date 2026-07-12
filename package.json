@@ -1,0 +1,21 @@
+{
+  "name": "nudibranchs",
+  "version": "1.0.0",
+  "description": "A parametric nudibranch — one procedural rig spanning many real sea slugs",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "render": "node scripts/render.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "lil-gui": "^0.21.0",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "ws": "^8.21.0"
+  }
+}
