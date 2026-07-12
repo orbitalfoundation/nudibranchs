@@ -60,7 +60,8 @@ export class NudibranchRig extends THREE.Group {
       q.setFromUnitVectors(Y, nrm);
       tilt.setFromEuler(new THREE.Euler(-0.15, 0, side * a.splay)); // slight forward + splay
       q.multiply(tilt);
-      posV.set(sp.pos[0], sp.pos[1], sp.pos[2]);
+      const embed = a.spec.baseRadius * 0.8;
+      posV.set(sp.pos[0] - nrm.x * embed, sp.pos[1] - nrm.y * embed, sp.pos[2] - nrm.z * embed);
       scaleV.setScalar(1);
       m.compose(posV, q, scaleV);
       const mesh = new THREE.Mesh(geo.clone().applyMatrix4(m), this.appMat);

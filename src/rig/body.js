@@ -57,6 +57,19 @@ export function buildBodyMesh(p) {
         const phi = (t / 0.62) * Math.PI;
         z = w * Math.sign(Math.cos(phi)) * Math.pow(Math.abs(Math.cos(phi)), 0.85);
         y = h * Math.pow(Math.sin(phi), 0.78);
+        // Procedural NOTUM TEXTURE — displace the surface outward for tubercles
+        // (rounded bumps) and wrinkles (soft folds), so the body isn't a smooth
+        // lens. This is the cheap-and-controllable alternative to SDF lumpiness.
+        const bd = p.body;
+        if ((bd.bump || 0) + (bd.wrinkle || 0) > 0.001) {
+          const dome = Math.pow(Math.sin(phi), 0.5); // fade texture out at the margins
+          const tuber = Math.max(0, Math.sin(u * (bd.bumpU || 42)) * Math.sin(t * 6.2831 * (bd.bumpV || 13)));
+          const wrink = 0.5 * Math.sin(u * 9.0 + t * 6.0) + 0.5 * Math.sin(t * 6.2831 * 3.0 + u * 4.0);
+          const disp = ((bd.bump || 0) * tuber + (bd.wrinkle || 0) * wrink * 0.5) * h * dome;
+          const cy = h * 0.35, dy = y - cy, dl = Math.hypot(dy, z) || 1;
+          y += (dy / dl) * disp;
+          z += (z / dl) * disp;
+        }
       } else {
         // Flat foot sole (left margin → right margin) just above the substrate.
         const b = (t - 0.62) / 0.38;
@@ -134,22 +147,33 @@ export function buildBody(field, p) {
 }
 
 // Surface point + outward normal at (u along body, v across dorsum). v: 0 = left
-// margin, 0.5 = dorsal midline, 1 = right margin. Used to seat appendages.
+// margin, 0.5 = dorsal midline, 1 = right margin. Used to seat appendages — so it
+// MUST match the swept mesh's cross-section exactly (see buildBodyMesh), or the
+// appendages float above / sink into the body.
 export function surfacePoint(profiles, u, v, out = {}) {
-  const { half, widthAt, heightAt, centreY } = profiles;
+  const { half, widthAt, heightAt } = profiles;
   const x = lerp(-half, half, u);
-  const rz = Math.max(widthAt(u), 0.008);
-  const ry = Math.max(heightAt(u), 0.008);
-  const cy = centreY(u);
-  const phi = (v - 0.5) * Math.PI;
-  const sy = Math.cos(phi), sz = Math.sin(phi);
-  const y = cy + ry * sy;
-  const z = rz * sz;
-  // Outward normal of the cross-section ellipse (x contributes little on the trunk).
-  let nx = 0, ny = sy / ry, nz = sz / rz;
+  const w = Math.max(widthAt(u), 0.006);
+  const h = Math.max(heightAt(u), 0.006);
+  // The mesh's top cross-section, parametrised by phi ∈ [0,π]: phi=0 → right margin,
+  // π/2 → dorsal midline, π → left margin. v maps in reverse so v=0.5 is the top.
+  const cs = (phi) => {
+    const c = Math.cos(phi), s = Math.sin(phi);
+    return [h * Math.pow(Math.max(0, s), 0.78), w * Math.sign(c) * Math.pow(Math.abs(c), 0.85)];
+  };
+  const phi = (1 - v) * Math.PI;
+  const [y, z] = cs(phi);
+  // Outward normal from the cross-section tangent (finite difference), oriented away
+  // from a point just inside the dome; plus a small x-tilt from the along-body slope.
+  const e = 0.02;
+  const [ya, za] = cs(phi - e), [yb, zb] = cs(phi + e);
+  let ny = zb - za, nz = -(yb - ya);
+  if (ny * (y - h * 0.35) + nz * z < 0) { ny = -ny; nz = -nz; }
+  const slope = heightAt(Math.min(1, u + 0.02)) - heightAt(Math.max(0, u - 0.02));
+  let nx = -slope * Math.max(0, Math.sin(phi)) * 1.0;
   const nl = Math.hypot(nx, ny, nz) || 1;
   out.pos = [x, y, z];
   out.nrm = [nx / nl, ny / nl, nz / nl];
-  out.rz = rz; out.ry = ry;
+  out.w = w; out.h = h;
   return out;
 }

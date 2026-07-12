@@ -59,7 +59,7 @@ const OVERRIDES = {
   },
   phyllidia: {
     displayName: 'Phyllidia varicosa', clade: 'dorid', scale: 0.06,
-    body: { length: 1.05, width: 0.42, height: 0.3, mantleOverhang: 0.25, tailTaper: 0.45, dome: 0.85 },
+    body: { length: 1.05, width: 0.42, height: 0.3, mantleOverhang: 0.25, tailTaper: 0.45, dome: 0.85, bump: 0.28, bumpU: 26, bumpV: 8, wrinkle: 0.03 },
     dorsal: { rosette: { amount: 0 }, cerata: { amount: 0 }, branches: { amount: 0 },
       bumps: { amount: 1, count: 90, spec: { length: 0.06, inflate: 0.9, baseColor: '#f0d020', coreColor: '#f0d020', tipColor: '#fff060' } } },
     antennae: { spec: { baseColor: '#f0d020', tipColor: '#fff060', ribs: 10 } },

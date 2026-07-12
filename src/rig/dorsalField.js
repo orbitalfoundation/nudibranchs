@@ -22,12 +22,17 @@ export function buildDorsalField(cfg, profiles, seed) {
   for (const pl of placements) {
     surfacePoint(profiles, pl.u, pl.v, sp);
     nrm.set(sp.nrm[0], sp.nrm[1], sp.nrm[2]);
+    // Erect bias: lean appendages toward vertical so flank ones stand up rather
+    // than splaying flat out to the side (aeolid cerata point up-and-back).
+    nrm.lerp(Y, 0.3).normalize();
     q.setFromUnitVectors(Y, nrm);
     // Lean: outward tilt + a little backward (toward the tail) + jitter.
     tiltQ.setFromEuler(new THREE.Euler(pl.tiltX, pl.tiltY, pl.tiltZ));
     q.multiply(tiltQ);
-    posV.set(sp.pos[0], sp.pos[1], sp.pos[2]);
     const sc = pl.size;
+    // Sink the base a little into the flesh so it reads as emerging, not floating.
+    const embed = cfg.spec.baseRadius * sc * 0.8;
+    posV.set(sp.pos[0] - nrm.x * embed, sp.pos[1] - nrm.y * embed, sp.pos[2] - nrm.z * embed);
     scaleV.set(sc, sc, sc);
     m.compose(posV, q, scaleV);
     parts.push(proto.clone().applyMatrix4(m));

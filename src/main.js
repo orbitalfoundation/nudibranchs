@@ -8,7 +8,7 @@ import GUI from 'lil-gui';
 
 import { makeSpecies, SPECIES_ORDER, SPECIES_LABELS } from './species/presets.js';
 import { NudibranchRig } from './rig/NudibranchRig.js';
-import { buildEnvironment } from './scene/environment.js';
+import { buildEnvironment, buildMarineSnow } from './scene/environment.js';
 
 const app = document.getElementById('app');
 
@@ -31,11 +31,12 @@ controls.minDistance = 0.3;
 controls.maxDistance = 40;
 
 const env = buildEnvironment(scene, renderer);
+const snow = buildMarineSnow(scene);
 
 // Subtle bloom only on the wettest specular highlights (they gleam, not glow).
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.22, 0.5, 0.9);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.2, 0.5, 1.05);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
@@ -56,6 +57,7 @@ function frameCamera(preserve = false) {
   camera.far = s * 60 + 20;
   camera.updateProjectionMatrix();
   env.setScale(s);
+  snow.setScale(s);
 }
 
 function rebuild(preserveCamera = true) {
@@ -142,6 +144,7 @@ function animate() {
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
   if (!ui.paused && rig) rig.update(dt);
+  snow.update(dt);
   env.update(clock.elapsedTime, camera);
   controls.update();
   composer.render();

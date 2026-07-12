@@ -107,7 +107,7 @@ vec3 nudiPattern(vec2 uv){
     if (uMargin2W > 0.001)
       c = mix(c, uMargin2Col, 1.0 - smoothstep(uMargin2W * 0.6, uMargin2W, edge));
   } else {
-    c = mix(uBase, vec3(0.9), 0.35); // pale foot sole
+    c = mix(uBase, vec3(0.7), 0.3); // pale foot sole
   }
   return c;
 }

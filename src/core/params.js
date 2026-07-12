@@ -53,6 +53,9 @@ export function defaults() {
       mantleOverhang: 0.35, marginFrill: 0.2,
       tail: 0.15, tailTaper: 0.7, footWidth: 0.7,
       blend: 0.085, // smin radius (rel) — how "melted" appendages look where they merge
+      // Notum texture (procedural vertex displacement): tubercle bumps + soft
+      // wrinkles, so the body reads as living tissue rather than a smooth lens.
+      bump: 0.0, bumpU: 42, bumpV: 13, wrinkle: 0.07,
     },
 
     antennae: {
@@ -78,7 +81,7 @@ export function defaults() {
     // APPEARANCE — the identity. Procedural layers in body-UV (see NudiMaterial).
     surface: {
       base: '#f2f2f4', countershade: 0.15,
-      margin: { color: '#ff7a1a', width: 0.09, secondColor: '#ffffff', secondWidth: 0.02 },
+      margin: { color: '#ff7a1a', width: 0.0, secondColor: '#ffffff', secondWidth: 0.02 },
       spots: { amount: 0.0, color: '#242424', scale: 8, mode: 'worley' }, // worley | rd
       reticulation: { amount: 0.0, color: '#101010', scale: 10 },
       lines: { amount: 0.0, color: '#ffd000', count: 3 },
