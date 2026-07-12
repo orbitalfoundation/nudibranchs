@@ -39,9 +39,10 @@ const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
-let params = makeSpecies('chromodoris');
+const DEFAULT_ID = SPECIES_ORDER[Math.floor(Math.random() * SPECIES_ORDER.length)];
+let params = makeSpecies(DEFAULT_ID);
 let rig = null;
-let currentSpecies = 'chromodoris';
+let currentSpecies = DEFAULT_ID;
 
 function frameCamera(preserve = false) {
   const s = rig.span;
